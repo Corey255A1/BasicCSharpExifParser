@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿//WunderVision 2020
+//Parse the App0 Portion of a JFIF Header
 
+using System;
 using EXIFReader.UTIL;
 namespace EXIFReader.JFIF
 {

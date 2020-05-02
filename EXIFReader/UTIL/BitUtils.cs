@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿//WunderVision 2020
+//Utilities to Parse, Swap and move the offset
+using System;
 using System.Text;
 
 namespace EXIFReader.UTIL
@@ -13,6 +14,10 @@ namespace EXIFReader.UTIL
         public static UInt32 Swap32(UInt32 val)
         {
             return ((UInt32)Swap16((UInt16)(val & 0xFFFF))) << 16 | ((UInt32)Swap16((UInt16)((val>>16))));
+        }
+        public static Int32 Swap32(Int32 val)
+        {
+            return ((Int32)Swap16((UInt16)(val & 0xFFFF))) << 16 | ((Int32)Swap16((UInt16)((val >> 16))));
         }
         public static void GetValue(ref UInt16 val, byte[] bytes, ref int offset, bool swap = false)
         {

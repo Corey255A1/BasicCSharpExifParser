@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿//WunderVision 2020
+//All of the Exif/Tiff Tags I could find from the Library of Congress website
 
 namespace EXIFReader.JFIF
 {

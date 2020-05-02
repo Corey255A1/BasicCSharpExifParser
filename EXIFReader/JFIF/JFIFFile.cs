@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿//WunderVision 2020
+//Parse the Header information of a JFIF File
+
+using System;
 using System.IO;
 using System.Threading.Tasks;
-
+using EXIFReader.UTIL;
 namespace EXIFReader.JFIF
 {
     public enum APPDataType { Undefined, APP0, APP0Ex, APP1 };
@@ -16,7 +17,7 @@ namespace EXIFReader.JFIF
 
         public JFIFFile(byte[] bytes, int offset)
         {
-            SOI = BitConverter.ToUInt16(bytes, offset); offset += 2;
+            BitUtils.GetValue(ref SOI, bytes, ref offset);
             bool parse = true;
             while (parse)
             {
@@ -27,18 +28,7 @@ namespace EXIFReader.JFIF
                     default: parse = false; break;
                 }
             }
-            
-            if(APP0 != null)
-            {
-                Console.WriteLine(APP0.Identifier);
-            }
-            Console.WriteLine(Encoding.ASCII.GetString(Exif.Tags[TiffTag.Make].Bytes));
-            Console.WriteLine(Encoding.ASCII.GetString(Exif.Tags[TiffTag.Model].Bytes));
-            Console.WriteLine(Exif.Tags[TiffTag.ISOSpeedRatings].ValueOrOffset);
-            Console.WriteLine(Exif.Tags[TiffTag.Orientation].ValueOrOffset);
         }
-
-
 
         public static APPDataType GetSectionType(byte[] bytes, int offset)
         {
@@ -54,19 +44,25 @@ namespace EXIFReader.JFIF
         }
         public static async Task<JFIFFile> Parse(string filepath)
         {
-            byte[] bytes = await File.ReadAllBytesAsync(filepath);
-            bool isjfif = IsJFIF(bytes, 0);
-            Console.WriteLine(isjfif);
-            
-            if (isjfif)
+            try
             {
-                return new JFIFFile(bytes, 0);
-            }
-            else
-            {
+                byte[] bytes = await File.ReadAllBytesAsync(filepath);
+                bool isjfif = IsJFIF(bytes, 0);
 
-                return null;
+                if (isjfif)
+                {
+                    return new JFIFFile(bytes, 0);
+                }
             }
+            catch(FileNotFoundException)
+            {
+                Console.WriteLine("Could Not Find File");                
+            }
+            catch
+            {
+                Console.WriteLine("Failed To Parse the File");
+            }
+            return null;
         }
     }
 }
