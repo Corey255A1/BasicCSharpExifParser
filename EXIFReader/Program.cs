@@ -11,7 +11,7 @@ namespace EXIFReader
     {
         static async Task<string> ParseFile(string path)
         {
-            var file = await JFIFFile.Parse(path);
+            var file = await JPEGEXIFFile.Parse(path);
             if(file == null)
             {
                 return "\nAn issue occurred while parsing the input file: " + path;
