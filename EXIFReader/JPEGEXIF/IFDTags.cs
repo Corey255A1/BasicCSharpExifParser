@@ -3,7 +3,7 @@
 
 namespace EXIFReader.JFIF
 {
-    public enum TiffTag
+    public enum IFDTag
     {
         NewSubfileType = 254,
         SubfileType = 255,

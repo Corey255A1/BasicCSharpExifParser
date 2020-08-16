@@ -8,14 +8,14 @@ using EXIFReader.UTIL;
 namespace EXIFReader.JFIF
 {
     public enum APPDataType { Undefined, APP0, APP0Ex, APP1 };
-    public class JFIFFile
+    public class JPEGEXIFFile
     {
         public UInt16 SOI;
         public APP0Marker APP0;
         public EXIF Exif;
 
 
-        public JFIFFile(byte[] bytes, int offset)
+        public JPEGEXIFFile(byte[] bytes, int offset)
         {
             BitUtils.GetValue(ref SOI, bytes, ref offset);
             bool parse = true;
@@ -38,20 +38,20 @@ namespace EXIFReader.JFIF
             return APPDataType.Undefined;
         }
 
-        public static bool IsJFIF(byte[] bytes, int offset)
+        public static bool IsJPEGExif(byte[] bytes, int offset)
         {
             return bytes[offset] == 0xff && bytes[offset + 1] == 0xd8;
         }
-        public static async Task<JFIFFile> Parse(string filepath)
+        public static async Task<JPEGEXIFFile> Parse(string filepath)
         {
             try
             {
                 byte[] bytes = await File.ReadAllBytesAsync(filepath);
-                bool isjfif = IsJFIF(bytes, 0);
+                bool isjfif = IsJPEGExif(bytes, 0);
 
                 if (isjfif)
                 {
-                    return new JFIFFile(bytes, 0);
+                    return new JPEGEXIFFile(bytes, 0);
                 }
             }
             catch(FileNotFoundException)

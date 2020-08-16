@@ -1,5 +1,5 @@
 ﻿//WunderVision 2020
-// Parsing the Exif/Tiff Data portion of a JFIF File.
+// Parsing the Exif Data portion of a JPEG File.
 
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace EXIFReader.JFIF
         SRATIONAL = 10 // Two SLONGs. The first SLONG is the numerator and the second SLONG is the denominator
     }
 
-    public class TIFFDirectoryEntry
+    public class ImageFileDirectoryEntry
     {
         public UInt16 Tag;
         public UInt16 Type;
@@ -50,7 +50,7 @@ namespace EXIFReader.JFIF
                 return valstr;
             }
         }
-        public TIFFDirectoryEntry(byte[] bytes, int offset, int tiffoffset, bool tiffIsBigEndian)
+        public ImageFileDirectoryEntry(byte[] bytes, int offset, int tiffoffset, bool tiffIsBigEndian)
         {
             BitUtils.GetValue(ref Tag, bytes, ref offset, tiffIsBigEndian);
             BitUtils.GetValue(ref Type, bytes, ref offset, tiffIsBigEndian);
@@ -107,9 +107,9 @@ namespace EXIFReader.JFIF
 
         public const int Size = 12;
 
-        public static TIFFDirectoryEntry Parse(byte[] bytes, ref int offset, int tiffoffset, bool tiffIsBigEndian)
+        public static ImageFileDirectoryEntry Parse(byte[] bytes, ref int offset, int tiffoffset, bool tiffIsBigEndian)
         {
-            var tde = new TIFFDirectoryEntry(bytes, offset, tiffoffset, tiffIsBigEndian);
+            var tde = new ImageFileDirectoryEntry(bytes, offset, tiffoffset, tiffIsBigEndian);
             offset += Size;
             return tde;
         }
@@ -123,7 +123,7 @@ namespace EXIFReader.JFIF
         public UInt16 TiffEndian;
         public UInt16 TiffID;
         public UInt32 IFD0Offset;
-        public Dictionary<TiffTag, TIFFDirectoryEntry> Tags = new Dictionary<TiffTag, TIFFDirectoryEntry>();
+        public Dictionary<IFDTag, ImageFileDirectoryEntry> Tags = new Dictionary<IFDTag, ImageFileDirectoryEntry>();
         public EXIF(byte[] bytes, int offset)
         {
             offset += 2; //Skip App1 marker;
@@ -136,14 +136,14 @@ namespace EXIFReader.JFIF
             BitUtils.GetValue(ref IFD0Offset, bytes, ref offset, tiffIsBigEndian);
             int bytecount = GetIFDTags(Tags, bytes, offset, TiffHeaderStart, tiffIsBigEndian);
             offset += bytecount;
-            if (Tags.ContainsKey(TiffTag.ExifIFD))
+            if (Tags.ContainsKey(IFDTag.ExifIFD))
             {
-                int sectionOffset = TiffHeaderStart + (int)Tags[TiffTag.ExifIFD].ValueOrOffset;
+                int sectionOffset = TiffHeaderStart + (int)Tags[IFDTag.ExifIFD].ValueOrOffset;
                 GetIFDTags(Tags, bytes, sectionOffset, TiffHeaderStart, tiffIsBigEndian);
             }            
         }
 
-        public string GetTagString(TiffTag tag)
+        public string GetTagString(IFDTag tag)
         {
             if (Tags.ContainsKey(tag))
             {
@@ -152,19 +152,19 @@ namespace EXIFReader.JFIF
             return "";
         }
 
-        public static int GetIFDTags(Dictionary<TiffTag, TIFFDirectoryEntry> tags, byte[] bytes, int offset, int sectionstart, bool swap)
+        public static int GetIFDTags(Dictionary<IFDTag, ImageFileDirectoryEntry> tags, byte[] bytes, int offset, int sectionstart, bool swap)
         {
             UInt16 tagcount = 0;
             int start = offset;
             BitUtils.GetValue(ref tagcount, bytes, ref offset, swap);
             for (int dIdx = 0; dIdx < tagcount; dIdx++)
             {
-                var ifd = TIFFDirectoryEntry.Parse(bytes, ref offset, sectionstart, swap);//False?
+                var ifd = ImageFileDirectoryEntry.Parse(bytes, ref offset, sectionstart, swap);//False?
                 try
                 {
-                    if (Enum.IsDefined(typeof(TiffTag), (Int32)ifd.Tag))
+                    if (Enum.IsDefined(typeof(IFDTag), (Int32)ifd.Tag))
                     {
-                        tags.Add((TiffTag)ifd.Tag, ifd);
+                        tags.Add((IFDTag)ifd.Tag, ifd);
                     }
                 }
                 catch (Exception e)
